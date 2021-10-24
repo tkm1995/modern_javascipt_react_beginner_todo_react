@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import "./styles.css";
+import { InputTodo } from "./components/InputTodo";
+import { IncompleteTodos } from "./components/IncompleteTodos";
+import { CompleteTodos } from "./components/CompleteTodos";
 
 export const App = () => {
   const [todoText, setTodoText] = useState("");
@@ -22,43 +25,54 @@ export const App = () => {
     newTodos.splice(index, 1);
     setIncompleteTodos(newTodos);
   };
+
+  // 完了ボタン
+  const onClickComplete = (index) => {
+    // 完了リストに追加
+    const completeTodo = incompleteTodos[index];
+    const newTodos = [...completeTodos, completeTodo];
+    setCompleteTodos(newTodos);
+
+    // 未完了リストから削除
+    onClickDelete(index);
+  };
+
+  // 戻すボタン
+  const onClickBack = (index) => {
+    // 未完了リストに追加
+    const backTodo = completeTodos[index];
+    const newTodos = [...incompleteTodos, backTodo];
+    setIncompleteTodos(newTodos);
+
+    // 完了リストから削除
+    completeTodos.splice(index, 1);
+  };
+
   return (
     <React.Fragment>
-      <div className="input-area">
-        <input
-          placeholder="TODOを入力"
-          value={todoText}
-          onChange={onChangeTodoText}
-        />
-        <button onClick={onClickAdd}>追加</button>
-      </div>
-      <div className="incomplete-area">
-        <p className="title">未完了のTODO</p>
-        <ul>
-          {incompleteTodos.map((todo, index) => {
-            return (
-              <div key={todo} className="list-row">
-                <li>{todo}</li>
-                <button>完了</button>
-                <button onClick={() => onClickDelete(index)}>削除</button>
-              </div>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="complete-area">
-        <p className="title">完了したTODO</p>
-        <ul>
-          {completeTodos.map((todo) => {
-            return (
-              <div key={todo} className="list-row">
-                <li>{todo}</li>
-                <button>戻す</button>
-              </div>
-            );
-          })}
-        </ul>
-      </div>
+      {/* <InputTodo
+        todoTextProp={todoText}
+        onChangeProp={onChangeTodoText}
+        onClickProp={onClickAdd}
+      /> */}
+      <InputTodo
+        todoText={todoText}
+        onChange={onChangeTodoText}
+        onClick={onClickAdd}
+        disabled={incompleteTodos.length >= 5}
+      />
+      {incompleteTodos.length >= 5 && (
+        <p style={{ color: "red" }}>登録できるタスクは5個まで</p>
+      )}
+      <IncompleteTodos
+        incompleteTodosProp={incompleteTodos}
+        onClickCompleteProp={onClickComplete}
+        onClickDeleteProp={onClickDelete}
+      />
+      <CompleteTodos
+        completeTodosProp={completeTodos}
+        onClickBackProp={onClickBack}
+      />
     </React.Fragment>
   );
 };
